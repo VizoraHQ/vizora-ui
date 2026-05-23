@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import type { ScaleLinear } from "d3-scale";
 import { useCartesian, useChartFrame } from "./contexts";
 
 export type GridProps = {
@@ -13,7 +14,7 @@ export function Grid({ axis = "y", tickCount = 5 }: GridProps) {
   const xLines = useMemo(() => {
     if (axis === "y") return [];
     if (xKind === "band") return [];
-    const continuous = xScale as ReturnType<typeof import("d3-scale").scaleLinear<number, number>>;
+    const continuous = xScale as ScaleLinear<number, number>;
     return continuous.ticks(tickCount).map((v) => continuous(v as number));
   }, [axis, xKind, xScale, tickCount]);
 

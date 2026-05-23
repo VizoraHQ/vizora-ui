@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { scaleBand } from "d3-scale";
+import type { ScaleBand } from "d3-scale";
 import { seriesColor } from "@vizora/utils";
 import { useCartesian, useChartFrame } from "../contexts";
 import { useSeriesGroups } from "./groupBySeries";
@@ -20,7 +21,7 @@ export function BarSeries(props: BarSeriesProps) {
     throw new Error("BarSeries requires Cartesian xType='band'.");
   }
 
-  const band = xScale as ReturnType<typeof import("d3-scale").scaleBand<string>>;
+  const band = xScale as ScaleBand<string>;
 
   const innerScale = useMemo(() => {
     if (seriesKeys.length <= 1) return null;

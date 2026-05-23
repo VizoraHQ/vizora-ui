@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import type { ScaleBand, ScaleLinear } from "d3-scale";
 import { useCartesian, useChartFrame } from "./contexts";
 
 export type AxisProps = {
@@ -25,14 +26,14 @@ export function XAxis(props: AxisProps) {
 
   const ticks = useMemo(() => {
     if (xKind === "band") {
-      const bandScale = xScale as ReturnType<typeof import("d3-scale").scaleBand<string>>;
+      const bandScale = xScale as ScaleBand<string>;
       const domain = bandScale.domain();
       return domain.map((value) => ({
         value,
         offset: (bandScale(value) ?? 0) + bandScale.bandwidth() / 2,
       }));
     }
-    const continuous = xScale as ReturnType<typeof import("d3-scale").scaleLinear<number, number>>;
+    const continuous = xScale as ScaleLinear<number, number>;
     const tickValues = continuous.ticks(tickCount) as unknown[];
     return tickValues.map((value) => ({
       value,

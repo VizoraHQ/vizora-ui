@@ -1,6 +1,7 @@
 import { useMemo, useRef, useState } from "react";
 import type { MouseEvent, ReactNode } from "react";
 import { bisector } from "d3-array";
+import type { ScaleBand, ScaleLinear } from "d3-scale";
 import { useCartesian, useChartFrame } from "./contexts";
 
 export type TooltipPoint<T = unknown> = {
@@ -48,7 +49,7 @@ export function Tooltip<T = unknown>(props: TooltipProps<T>) {
     const mx = local.x;
 
     if (xKind === "band") {
-      const band = xScale as ReturnType<typeof import("d3-scale").scaleBand<string>>;
+      const band = xScale as ScaleBand<string>;
       const domain = band.domain();
       const step = band.step();
       const idx = Math.max(0, Math.min(domain.length - 1, Math.floor(mx / step)));
@@ -65,7 +66,7 @@ export function Tooltip<T = unknown>(props: TooltipProps<T>) {
       };
     }
 
-    const continuous = xScale as ReturnType<typeof import("d3-scale").scaleLinear<number, number>>;
+    const continuous = xScale as ScaleLinear<number, number>;
     const x0 = continuous.invert(mx);
     const getX = (d: T): number => {
       const v = xAccessor(d);

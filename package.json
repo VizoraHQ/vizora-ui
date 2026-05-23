@@ -2,6 +2,7 @@
   "name": "vizora",
   "private": true,
   "version": "0.0.0",
+  "type": "module",
   "description": "Production-grade React visualizations for AI-native products.",
   "license": "MIT",
   "packageManager": "pnpm@9.12.0",

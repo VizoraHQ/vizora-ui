@@ -1,5 +1,6 @@
 import { useId, useMemo } from "react";
 import { area as d3Area } from "d3-shape";
+import type { ScaleBand, ScaleLinear, ScaleTime } from "d3-scale";
 import { seriesColor } from "@vizora/utils";
 import { useCartesian, useChartFrame } from "../contexts";
 import { useSeriesGroups } from "./groupBySeries";
@@ -23,14 +24,14 @@ export function AreaSeries(props: AreaSeriesProps) {
 
   const getX = useMemo(() => {
     if (xKind === "band") {
-      const band = xScale as ReturnType<typeof import("d3-scale").scaleBand<string>>;
+      const band = xScale as ScaleBand<string>;
       return (d: unknown) => (band(String(xAccessor(d))) ?? 0) + band.bandwidth() / 2;
     }
     if (xKind === "time") {
-      const time = xScale as ReturnType<typeof import("d3-scale").scaleTime<number, number>>;
+      const time = xScale as ScaleTime<number, number>;
       return (d: unknown) => time(new Date(xAccessor(d) as Date | number | string));
     }
-    const linear = xScale as ReturnType<typeof import("d3-scale").scaleLinear<number, number>>;
+    const linear = xScale as ScaleLinear<number, number>;
     return (d: unknown) => linear(Number(xAccessor(d)));
   }, [xScale, xAccessor, xKind]);
 

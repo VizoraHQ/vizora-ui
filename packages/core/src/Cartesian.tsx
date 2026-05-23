@@ -70,7 +70,7 @@ export function Cartesian<T>(props: CartesianProps<T>) {
     }
 
     const yValues = data.map((d) => yAccessor(d));
-    let yExtent = extent(yValues) as [number, number] | [undefined, undefined];
+    const yExtent = extent(yValues) as [number, number] | [undefined, undefined];
     let yMin = yExtent[0] ?? 0;
     let yMax = yExtent[1] ?? 1;
     if (yIncludeZero) {
