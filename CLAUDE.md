@@ -53,10 +53,10 @@ Tooling: **pnpm 9** workspaces, **Turbo** for task orchestration, **tsup** for l
 - ✅ `@vizora/themes` — `ThemeName` type + `applyTheme`/`getCurrentTheme`, dark/light/midnight CSS
 - ✅ `@vizora/utils` — formatters, color helpers, `useResizeObserver`, `useStream`, `cn` (+ Vitest wired with 14 passing tests on formatters)
 - ✅ `@vizora/core` — `ChartProvider` (with a11y `title`/`description` props → `<title>`/`<desc>` + `aria-labelledby`), `Cartesian`, `XAxis`/`YAxis`, `Grid`, `LineSeries`/`AreaSeries`/`BarSeries`, `Tooltip`, `Legend`
-- ✅ `@vizora/charts` — `LineChart`, `BarChart`, `AreaChart` (all accept `title`/`description`)
+- ✅ `@vizora/charts` — `LineChart`, `BarChart`, `AreaChart`, **`PieChart` + `DonutChart` (v0.2)**, **`ScatterPlot` (v0.2)**, **`Heatmap` (v0.2)** — all accept `title`/`description`
 - ✅ `@vizora/dashboard-blocks` — `KpiCard`, `KpiGrid`, `Sparkline`
 - ✅ `@vizora/ai-visuals` — `TokenUsageChart` (signature AI component; sensible default `title`)
-- ✅ `apps/playground` — Vite app demoing every component, dark/light/midnight theme switcher
+- ✅ `apps/playground` — Vite app rebuilt as an "AI Ops dashboard" demo (KPI row + 6 chart panels + token usage), dark/light/midnight theme switcher, seeded sample data
 - ✅ Root: README, LICENSE (MIT), `.changeset/config.json`, CI workflow (now incl. `pnpm test`), PR + issue templates, **CONTRIBUTING.md, CODEOWNERS, CODE_OF_CONDUCT.md, SECURITY.md** (post-audit)
 - ✅ `pnpm install && pnpm build && pnpm typecheck && pnpm lint && pnpm test` all pass (post-cleanup-sweep)
 
@@ -148,4 +148,4 @@ If this is a fresh session (or you just opened the folder):
 
 ---
 
-*Last refreshed: 2026-05-23 — post-v0.1 audit + cleanup sweep landed in `chore/v0.1-cleanup-sweep`. d3 externalized, a11y `title`/`description` props live on every chart, Vitest wired in `@vizora/utils`, community files added. Repo at VizoraHQ/vizora-ui. CI green.*
+*Last refreshed: 2026-05-23 — v0.2 charts (Pie/Donut/Scatter/Heatmap) landing in `feat/v0.2-pie-scatter-heatmap`; Radar parked (needs full Polar context, future PR). Playground rebuilt as an AI Ops dashboard demo. Post-v0.1 cleanup sweep already in main. Repo at VizoraHQ/vizora-ui. CI green.*

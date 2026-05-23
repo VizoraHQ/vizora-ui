@@ -13,6 +13,8 @@ export type { GridProps } from "./Grid";
 export { LineSeries } from "./series/LineSeries";
 export { AreaSeries } from "./series/AreaSeries";
 export { BarSeries } from "./series/BarSeries";
+export { ScatterSeries } from "./series/ScatterSeries";
+export type { ScatterSeriesProps } from "./series/ScatterSeries";
 export type { CurveKind } from "./series/curves";
 
 export { Tooltip } from "./Tooltip";

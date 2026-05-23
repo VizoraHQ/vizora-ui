@@ -109,10 +109,19 @@ importers:
       '@vizora/core':
         specifier: workspace:*
         version: link:../core
+      '@vizora/utils':
+        specifier: workspace:*
+        version: link:../utils
     devDependencies:
+      '@types/d3-shape':
+        specifier: ^3.1.6
+        version: 3.1.8
       '@types/react':
         specifier: ^19.0.0
         version: 19.2.15
+      d3-shape:
+        specifier: ^3.2.0
+        version: 3.2.0
       react:
         specifier: ^19.0.0
         version: 19.2.6
