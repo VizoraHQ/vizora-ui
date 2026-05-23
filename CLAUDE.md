@@ -6,7 +6,8 @@
 
 **Vizora** — *Visual intelligence for the AI era.* An open-source React + TypeScript visualization framework targeting AI-native products. Pitched as *"shadcn/ui for charts, with first-class LLM/agent dashboards."*
 
-> **Naming notes.** Product is "Vizora" (capital V). npm scope `@vizora/*`. CSS prefix `--vz-` / `.vz-` / `data-vz-*`. Working directory is `/Users/santosh/vizora/`. The repo on GitHub should be `vizora` (or under the `vizora-ui` org, which is free; `github.com/Vizora` is a squatted empty handle).
+> **Live at https://github.com/Santoshrt999/vizora-ui** (public, MIT, CI green).
+> **Naming notes.** Product is "Vizora" (capital V). npm scope `@vizora/*` (not yet published). CSS prefix `--vz-` / `.vz-` / `data-vz-*`. Working directory `/Users/santosh/vizora/`. Repo currently under personal account `Santoshrt999`; can transfer to a `vizora-ui` org later if the project warrants it.
 
 Three product layers:
 
@@ -44,9 +45,9 @@ vizora/
 
 Tooling: **pnpm 9** workspaces, **Turbo** for task orchestration, **tsup** for library builds, **Changesets** for releases, **Vitest** for units, **Playwright** for visual + e2e, **Storybook 8** for component lab.
 
-## Current state — snapshot 2026-05-23 (v0.1 shipped locally)
+## Current state — snapshot 2026-05-23 (v0.1 live on GitHub, CI green)
 
-v0.1 builds clean and the playground serves. Not pushed to GitHub yet.
+**Live at https://github.com/Santoshrt999/vizora-ui** (public, MIT). CI green on commit `cb94e63`.
 
 **Shipped:**
 - ✅ `@vizora/themes` — tokens.ts, apply.ts, dark/light/midnight CSS
@@ -62,10 +63,10 @@ v0.1 builds clean and the playground serves. Not pushed to GitHub yet.
 **Bundle sizes (gzipped, latest build):** core 5.3KB · charts 0.6KB · ai-visuals 0.9KB · dashboard-blocks 1.4KB · themes 0.7KB · utils 1.6KB. Total ~10KB (excludes d3 peer modules).
 
 **Not yet:**
-- ❌ Not a git repo. `git init` + first push to GitHub pending.
 - ❌ `packages/cli` and `apps/docs` are still empty (planned for v0.5 and v0.2 respectively).
 - ❌ No Storybook, Vitest, or Playwright wired in yet — coming in v0.2 alongside more chart types.
 - ❌ No examples in `examples/` yet.
+- ❌ Not published to npm yet — `@vizora` scope on npm not claimed.
 
 **Known kernel caveats to revisit before v1.0:**
 - Tooltip currently does its own DOM-based hit testing — works, but should be lifted to a proper headless `useCrosshair` hook.
@@ -97,10 +98,11 @@ v0.1 builds clean and the playground serves. Not pushed to GitHub yet.
 If this is a fresh session (or you just opened the folder):
 
 1. Read this file (you're doing it).
-2. `git log --oneline -20` to see recent work — if not a git repo yet, the project is at the v0.1 ship state described above.
-3. `pnpm install && pnpm build` should succeed; `pnpm dev` boots the playground at http://localhost:5173.
+2. `git log --oneline -20` and `git remote -v` — origin is `https://github.com/Santoshrt999/vizora-ui.git`.
+3. `pnpm install && pnpm build && pnpm lint` should all succeed; `pnpm dev` boots the playground at http://localhost:5173.
 4. Skim memory: my private context lives in `~/.claude/projects/-Users-santosh-vizora/memory/` and survives session loss.
-5. Check the roadmap below to find the next unblocked task — v0.2 (Pie/Donut/Scatter/Heatmap/Radar + streaming + first example) is the natural next slice.
+5. Confirm CI: https://github.com/Santoshrt999/vizora-ui/actions — should be green.
+6. Check the roadmap below to find the next unblocked task — v0.2 (Pie/Donut/Scatter/Heatmap/Radar + streaming + first example) is the natural next slice.
 
 ## Roadmap (condensed — full plan in chat history / future ROADMAP.md)
 
@@ -121,4 +123,4 @@ If this is a fresh session (or you just opened the folder):
 
 ---
 
-*Last refreshed: 2026-05-23 — after v0.1 ship and rename to Vizora.*
+*Last refreshed: 2026-05-23 — v0.1 live on GitHub at Santoshrt999/vizora-ui with green CI.*
