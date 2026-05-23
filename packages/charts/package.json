@@ -25,13 +25,17 @@
   },
   "peerDependencies": {
     "react": ">=18.2.0",
-    "react-dom": ">=18.2.0"
+    "react-dom": ">=18.2.0",
+    "d3-shape": "^3.2.0"
   },
   "dependencies": {
-    "@vizora/core": "workspace:*"
+    "@vizora/core": "workspace:*",
+    "@vizora/utils": "workspace:*"
   },
   "devDependencies": {
+    "@types/d3-shape": "^3.1.6",
     "@types/react": "^19.0.0",
+    "d3-shape": "^3.2.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "tsup": "^8.3.5",
