@@ -1,0 +1,20 @@
+@import "./base.css";
+
+[data-vz-theme="midnight"] {
+  --vz-bg: hsl(230 35% 7%);
+  --vz-surface: hsl(230 30% 11%);
+  --vz-fg: hsl(220 30% 96%);
+  --vz-muted: hsl(230 15% 60%);
+  --vz-border: hsl(230 25% 20%);
+  --vz-grid: hsl(230 25% 17%);
+  --vz-accent: hsl(258 92% 68%);
+
+  --vz-series-1: hsl(258 92% 68%);
+  --vz-series-2: hsl(196 92% 60%);
+  --vz-series-3: hsl(142 72% 56%);
+  --vz-series-4: hsl(38 96% 64%);
+  --vz-series-5: hsl(340 86% 68%);
+  --vz-series-6: hsl(180 70% 56%);
+  --vz-series-7: hsl(24 92% 64%);
+  --vz-series-8: hsl(280 80% 72%);
+}

@@ -1,0 +1,30 @@
+{
+  "name": "@vizora/playground",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview --port 4173",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf dist .turbo"
+  },
+  "dependencies": {
+    "@vizora/ai-visuals": "workspace:*",
+    "@vizora/charts": "workspace:*",
+    "@vizora/core": "workspace:*",
+    "@vizora/dashboard-blocks": "workspace:*",
+    "@vizora/themes": "workspace:*",
+    "@vizora/utils": "workspace:*",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@vitejs/plugin-react": "^4.3.4",
+    "typescript": "^5.7.2",
+    "vite": "^5.4.11"
+  }
+}
