@@ -6,8 +6,8 @@
 
 **Vizora** — *Visual intelligence for the AI era.* An open-source React + TypeScript visualization framework targeting AI-native products. Pitched as *"shadcn/ui for charts, with first-class LLM/agent dashboards."*
 
-> **Live at https://github.com/Santoshrt999/vizora-ui** (public, MIT, CI green).
-> **Naming notes.** Product is "Vizora" (capital V). npm scope `@vizora/*` (not yet published). CSS prefix `--vz-` / `.vz-` / `data-vz-*`. Working directory `/Users/santosh/vizora/`. Repo currently under personal account `Santoshrt999`; can transfer to a `vizora-ui` org later if the project warrants it.
+> **Live at https://github.com/VizoraHQ/vizora-ui** (public, MIT, CI green).
+> **Naming notes.** Product is "Vizora" (capital V). npm scope `@vizora/*` (not yet published). CSS prefix `--vz-` / `.vz-` / `data-vz-*`. Working directory `/Users/santosh/vizora/`. Repo lives under the `VizoraHQ` GitHub org (transferred from personal account `Santoshrt999` on 2026-05-23).
 
 Three product layers:
 
@@ -47,7 +47,7 @@ Tooling: **pnpm 9** workspaces, **Turbo** for task orchestration, **tsup** for l
 
 ## Current state — snapshot 2026-05-23 (v0.1 live on GitHub, CI green)
 
-**Live at https://github.com/Santoshrt999/vizora-ui** (public, MIT). CI green on commit `cb94e63`.
+**Live at https://github.com/VizoraHQ/vizora-ui** (public, MIT). CI green on commit `cb94e63`.
 
 **Shipped:**
 - ✅ `@vizora/themes` — tokens.ts, apply.ts, dark/light/midnight CSS
@@ -98,10 +98,10 @@ Tooling: **pnpm 9** workspaces, **Turbo** for task orchestration, **tsup** for l
 If this is a fresh session (or you just opened the folder):
 
 1. Read this file (you're doing it).
-2. `git log --oneline -20` and `git remote -v` — origin is `https://github.com/Santoshrt999/vizora-ui.git`.
+2. `git log --oneline -20` and `git remote -v` — origin is `https://github.com/VizoraHQ/vizora-ui.git`.
 3. `pnpm install && pnpm build && pnpm lint` should all succeed; `pnpm dev` boots the playground at http://localhost:5173.
 4. Skim memory: my private context lives in `~/.claude/projects/-Users-santosh-vizora/memory/` and survives session loss.
-5. Confirm CI: https://github.com/Santoshrt999/vizora-ui/actions — should be green.
+5. Confirm CI: https://github.com/VizoraHQ/vizora-ui/actions — should be green.
 6. Check the roadmap below to find the next unblocked task — v0.2 (Pie/Donut/Scatter/Heatmap/Radar + streaming + first example) is the natural next slice.
 
 ## Roadmap (condensed — full plan in chat history / future ROADMAP.md)
@@ -123,4 +123,4 @@ If this is a fresh session (or you just opened the folder):
 
 ---
 
-*Last refreshed: 2026-05-23 — v0.1 live on GitHub at Santoshrt999/vizora-ui with green CI.*
+*Last refreshed: 2026-05-23 — v0.1 live on GitHub at VizoraHQ/vizora-ui with green CI (repo transferred from Santoshrt999 → VizoraHQ org on 2026-05-23).*
