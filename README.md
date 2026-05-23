@@ -22,7 +22,7 @@ Vizora ships the visualizations modern products actually need:
 
 - **Beautiful by default** — a tuned, dark-mode-first design system you can retheme with one CSS variable.
 - **AI-native, not retrofitted** — token usage, prompt costs, agent traces, eval matrices as first-class components.
-- **Composable kernel** — a headless primitives layer (`ChartProvider`, `Cartesian`, series, overlays) on D3 + Visx, so you can build anything the catalog doesn't ship.
+- **Composable kernel** — a headless primitives layer (`ChartProvider`, `Cartesian`, series, overlays) on D3 (scale/shape/array), so you can build anything the catalog doesn't ship.
 - **SSR-safe and accessible** — no `window` at import time, ARIA descriptions, color-blind-safe palettes.
 - **One install, three layers** — high-level charts, AI visuals, and dashboard blocks all sit on the same kernel.
 

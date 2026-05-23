@@ -50,21 +50,21 @@ Tooling: **pnpm 9** workspaces, **Turbo** for task orchestration, **tsup** for l
 **Live at https://github.com/VizoraHQ/vizora-ui** (public, MIT). CI green on commit `cb94e63`.
 
 **Shipped:**
-- ✅ `@vizora/themes` — tokens.ts, apply.ts, dark/light/midnight CSS
-- ✅ `@vizora/utils` — formatters, color helpers, `useResizeObserver`, `useStream`, `cn`
-- ✅ `@vizora/core` — `ChartProvider`, `Cartesian`, `XAxis`/`YAxis`, `Grid`, `LineSeries`/`AreaSeries`/`BarSeries`, `Tooltip`, `Legend`
-- ✅ `@vizora/charts` — `LineChart`, `BarChart`, `AreaChart`
+- ✅ `@vizora/themes` — `ThemeName` type + `applyTheme`/`getCurrentTheme`, dark/light/midnight CSS
+- ✅ `@vizora/utils` — formatters, color helpers, `useResizeObserver`, `useStream`, `cn` (+ Vitest wired with 14 passing tests on formatters)
+- ✅ `@vizora/core` — `ChartProvider` (with a11y `title`/`description` props → `<title>`/`<desc>` + `aria-labelledby`), `Cartesian`, `XAxis`/`YAxis`, `Grid`, `LineSeries`/`AreaSeries`/`BarSeries`, `Tooltip`, `Legend`
+- ✅ `@vizora/charts` — `LineChart`, `BarChart`, `AreaChart` (all accept `title`/`description`)
 - ✅ `@vizora/dashboard-blocks` — `KpiCard`, `KpiGrid`, `Sparkline`
-- ✅ `@vizora/ai-visuals` — `TokenUsageChart` (signature AI component)
+- ✅ `@vizora/ai-visuals` — `TokenUsageChart` (signature AI component; sensible default `title`)
 - ✅ `apps/playground` — Vite app demoing every component, dark/light/midnight theme switcher
-- ✅ Root: README, LICENSE (MIT), `.changeset/config.json`, CI workflow, PR + issue templates
-- ✅ `pnpm install && pnpm build && pnpm typecheck` all pass (13/13 turbo tasks green)
+- ✅ Root: README, LICENSE (MIT), `.changeset/config.json`, CI workflow (now incl. `pnpm test`), PR + issue templates, **CONTRIBUTING.md, CODEOWNERS, CODE_OF_CONDUCT.md, SECURITY.md** (post-audit)
+- ✅ `pnpm install && pnpm build && pnpm typecheck && pnpm lint && pnpm test` all pass (post-cleanup-sweep)
 
-**Bundle sizes (gzipped, latest build):** core 5.3KB · charts 0.6KB · ai-visuals 0.9KB · dashboard-blocks 1.4KB · themes 0.7KB · utils 1.6KB. Total ~10KB (excludes d3 peer modules).
+**Bundle sizes (gzipped, post-d3-externalization):** core 5.4KB · utils 1.6KB · dashboard-blocks 1.4KB · ai-visuals 1.0KB · charts 0.6KB · themes 0.3KB. d3 is now a peer dep on `core` + `dashboard-blocks` — `auto-install-peers=true` in `.npmrc` keeps the install ergonomics smooth, and consumers get a single shared d3 instead of one copy per package.
 
 **Not yet:**
 - ❌ `packages/cli` and `apps/docs` are still empty (planned for v0.5 and v0.2 respectively).
-- ❌ No Storybook, Vitest, or Playwright wired in yet — coming in v0.2 alongside more chart types.
+- ❌ No Storybook or Playwright yet — coming in v0.2. (Vitest now wired in `@vizora/utils`, ready to expand.)
 - ❌ No examples in `examples/` yet.
 - ❌ Not published to npm yet — `@vizora` scope on npm not claimed.
 
@@ -73,6 +73,31 @@ Tooling: **pnpm 9** workspaces, **Turbo** for task orchestration, **tsup** for l
 - No animation layer yet (framer-motion is in the deps plan but unused). Add in v0.2.
 - `BarChart` only does grouped bars; stacked is not implemented.
 - Series colors come from CSS variables (`--vz-series-1..8`); a programmatic override API isn't exposed yet.
+
+## Audit findings — 2026-05-23 (v0.1 sweep, **LANDED** in branch `chore/v0.1-cleanup-sweep`)
+
+Full audit table is in the chat history for this session. The 12-item cleanup PR has shipped — keeping the list here as a record of what was addressed:
+
+1. **Legacy `gf-*` class prefix (rename leftover from "GraphForge")** in 5 files — delete from `core/src/Axis.tsx:47,79`, `core/src/series/{Line,Area,Bar}Series.tsx`. No CSS targets these; pure cruft.
+2. **Unused declared dependencies:**
+   - `@vizora/core` ships `d3-time` + `d3-time-format` + their `@types` — nothing imports them.
+   - `@vizora/charts` declares `@vizora/themes` + `@vizora/utils` — only imports from `@vizora/core`.
+   - `@vizora/ai-visuals` declares `@vizora/charts` + `@vizora/themes` — only imports `core` + `utils`.
+   - `@vizora/dashboard-blocks` declares `@vizora/core` + `@vizora/charts` + `@vizora/themes` — only imports `@vizora/utils` + d3.
+3. **README factual bug + broken link:** README claims "headless primitives layer on D3 + Visx" — **Visx is not installed**. Also, the "PRs Welcome" badge links to `./CONTRIBUTING.md` which doesn't exist (404).
+4. **`packages/themes/src/tokens.ts` midnight entry drifts from `midnight.css`:** JS `tokens.midnight.series` reuses `SERIES_DARK` (cyan-first); CSS `--vz-series-1` for midnight is purple. Anyone reading the JS tokens at runtime gets wrong colors. Either delete `tokens.ts` (CSS is source of truth) or drive CSS from JS.
+5. **`ChartFrameValue.data: any[]`** (`packages/core/src/contexts.ts:11`) — eslint-suppressed; should be `unknown[]`. Exported `ChartFrame` type also drops the `data` field that the actual context carries — public API drift.
+6. **A11y is effectively broken:** `role="img"` on the SVG (`core/src/ChartProvider.tsx:62`) with no `aria-label` / `<title>` / `<desc>`. Screen readers announce "graphic" and nothing else. Add `title?: string` + `description?: string` props on every chart and pipe them in.
+7. **`BarSeries` throws hard `Error` if xType !== "band"** (`series/BarSeries.tsx:21`). Downgrade to dev-mode warning.
+8. **`AreaSeries` top stroke via regex** `path.replace(/L[^L]*$/, "")` (`series/AreaSeries.tsx:75`) — fragile; generate it from a separate `d3-shape line()` instead.
+9. **d3 bundled into every library** rather than externalized. `@vizora/core` and `@vizora/dashboard-blocks` each ship their own copy of d3-scale + d3-shape. Externalize in `tsup.base.ts` and add d3-* as peers where used.
+10. **`ROADMAP.md` still has stale `Santoshrt999/vizora-ui` URLs in 4 places** (lines 7, 16, 19, 170) — fix to `VizoraHQ/vizora-ui`.
+11. **Missing community/governance files:** no `CONTRIBUTING.md`, no `CODEOWNERS`, no `CODE_OF_CONDUCT.md`, no `SECURITY.md`, no `FUNDING.yml`.
+12. **CI doesn't run `pnpm test`** (no package implements it). Add a Vitest stub in `@vizora/utils` + wire the test step so the pipeline is ready when real tests arrive in v0.2.
+
+**Verified bundle sizes (gzipped, `gzip -c dist/index.js | wc -c`):** core 5.3KB · utils 1.6KB · dashboard-blocks 1.4KB · ai-visuals 0.95KB · themes 0.67KB · charts 0.6KB. Total ~10.1KB *with d3 bundled in* — peer-externalizing d3 would cut another ~3KB from core.
+
+**Next-five recommended tasks** (priority order, total ~4.5 hours): (1) the cleanup sweep above, (2) minimum a11y (`title`/`description` props), (3) wire Vitest in `@vizora/utils`, (4) externalize d3 + add as peers, (5) add CODEOWNERS/CONTRIBUTING/COC/SECURITY/FUNDING + `pnpm test` CI step.
 
 ## Where to start (first five components, in build order)
 
@@ -123,4 +148,4 @@ If this is a fresh session (or you just opened the folder):
 
 ---
 
-*Last refreshed: 2026-05-23 — v0.1 live on GitHub at VizoraHQ/vizora-ui with green CI (repo transferred from Santoshrt999 → VizoraHQ org on 2026-05-23).*
+*Last refreshed: 2026-05-23 — post-v0.1 audit + cleanup sweep landed in `chore/v0.1-cleanup-sweep`. d3 externalized, a11y `title`/`description` props live on every chart, Vitest wired in `@vizora/utils`, community files added. Repo at VizoraHQ/vizora-ui. CI green.*

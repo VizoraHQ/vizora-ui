@@ -26,6 +26,8 @@ export type LineChartProps<T> = {
   yLabel?: string;
   xType?: "linear" | "time";
   className?: string;
+  title?: string;
+  description?: string;
 };
 
 export function LineChart<T>(props: LineChartProps<T>) {
@@ -45,10 +47,19 @@ export function LineChart<T>(props: LineChartProps<T>) {
     yLabel,
     xType = "time",
     className,
+    title,
+    description,
   } = props;
 
   return (
-    <ChartProvider data={data} width={width} height={height} className={className}>
+    <ChartProvider
+      data={data}
+      width={width}
+      height={height}
+      className={className}
+      title={title}
+      description={description}
+    >
       <Cartesian x={x} y={y} series={series} xType={xType}>
         {showGrid ? <Grid axis="y" /> : null}
         <YAxis label={yLabel} />

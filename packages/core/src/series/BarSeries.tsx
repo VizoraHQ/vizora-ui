@@ -18,7 +18,12 @@ export function BarSeries(props: BarSeriesProps) {
   const groups = useSeriesGroups<unknown>();
 
   if (xKind !== "band") {
-    throw new Error("BarSeries requires Cartesian xType='band'.");
+    if (process.env.NODE_ENV !== "production") {
+      console.warn(
+        "Vizora: <BarSeries> requires <Cartesian xType=\"band\"> — rendering nothing.",
+      );
+    }
+    return null;
   }
 
   const band = xScale as ScaleBand<string>;
@@ -35,7 +40,7 @@ export function BarSeries(props: BarSeriesProps) {
   const yZero = Number.isFinite(baseline) ? baseline : innerHeight;
 
   return (
-    <g className="vz-series gf-bar-series">
+    <g className="vz-series vz-bar-series">
       {groups.map((group) => {
         const color = fill ?? seriesColor(group.index);
         return (

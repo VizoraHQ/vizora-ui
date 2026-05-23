@@ -44,7 +44,7 @@ export function LineSeries(props: LineSeriesProps) {
   );
 
   return (
-    <g className="vz-series gf-line-series">
+    <g className="vz-series vz-line-series">
       {groups.map((group) => {
         const color = stroke ?? seriesColor(group.index);
         const path = generator(group.data) ?? "";

@@ -7,8 +7,7 @@ export type ChartFrameValue = {
   innerWidth: number;
   innerHeight: number;
   margin: { top: number; right: number; bottom: number; left: number };
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  data: any[];
+  data: unknown[];
 };
 
 export const ChartFrameContext = createContext<ChartFrameValue | null>(null);

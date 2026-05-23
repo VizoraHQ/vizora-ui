@@ -28,9 +28,7 @@
     "react-dom": ">=18.2.0"
   },
   "dependencies": {
-    "@vizora/core": "workspace:*",
-    "@vizora/themes": "workspace:*",
-    "@vizora/utils": "workspace:*"
+    "@vizora/core": "workspace:*"
   },
   "devDependencies": {
     "@types/react": "^19.0.0",

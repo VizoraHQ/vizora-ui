@@ -4,7 +4,7 @@
 
 This document tracks where Vizora is, what's next, and how outside contributors can help. It is the canonical source — issues and PRs should reference items here.
 
-**Current state (2026-05-23):** v0.1 shipped, live at https://github.com/Santoshrt999/vizora-ui with green CI.
+**Current state (2026-05-23):** v0.1 shipped, live at https://github.com/VizoraHQ/vizora-ui with green CI. (Repo transferred from `Santoshrt999/vizora-ui` → `VizoraHQ/vizora-ui` on 2026-05-23.)
 
 ---
 
@@ -13,15 +13,15 @@ This document tracks where Vizora is, what's next, and how outside contributors 
 Small, high-leverage actions that don't require new code. Listed roughly in order of impact-per-minute.
 
 ### 1. Repo metadata (2 minutes, biggest discoverability win)
-At https://github.com/Santoshrt999/vizora-ui/settings:
+At https://github.com/VizoraHQ/vizora-ui/settings:
 
 - **Description:** `Visual intelligence for the AI era — React + TypeScript visualizations for AI-native products.`
-- **Website:** leave blank for now (or `https://github.com/Santoshrt999/vizora-ui`)
+- **Website:** leave blank for now (or `https://github.com/VizoraHQ/vizora-ui`)
 - **Topics:** `react`, `typescript`, `dataviz`, `charts`, `chart-library`, `ai`, `llm`, `dashboard`, `d3`, `visualization`, `react19`, `tailwindcss`, `monorepo`, `open-source`
 - Tick **"Releases"** and **"Packages"** under the "About" section.
 
 ### 2. Pin the repo to your profile (30 seconds)
-At https://github.com/Santoshrt999→ "Customize your pins" → check `vizora-ui`. First impression on every profile visit.
+At https://github.com/Santoshrt999 → "Customize your pins" → check the personal mirror, or pin the `VizoraHQ/vizora-ui` repo to the org page. First impression on every profile visit.
 
 ### 3. Enable GitHub Discussions (1 minute)
 Settings → Features → tick **Discussions**. Creates a forum for early-feedback questions before they become issues.
@@ -167,7 +167,7 @@ See [CONTRIBUTING.md](./CONTRIBUTING.md) for setup details (TODO — landing wit
 
 ## 📊 Tracking
 
-- **Project board:** TODO — create at https://github.com/Santoshrt999/vizora-ui/projects (one column per minor version)
+- **Project board:** TODO — create at https://github.com/VizoraHQ/vizora-ui/projects (one column per minor version)
 - **Milestones:** v0.2, v0.3, v0.4, v0.5, v0.8, v1.0 — to be created as issues are filed
 - **Discussions:** for design questions and "how do I…" before they become issues
 

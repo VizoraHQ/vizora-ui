@@ -26,6 +26,8 @@ export type AreaChartProps<T> = {
   xLabel?: string;
   yLabel?: string;
   className?: string;
+  title?: string;
+  description?: string;
 };
 
 export function AreaChart<T>(props: AreaChartProps<T>) {
@@ -45,10 +47,19 @@ export function AreaChart<T>(props: AreaChartProps<T>) {
     xLabel,
     yLabel,
     className,
+    title,
+    description,
   } = props;
 
   return (
-    <ChartProvider data={data} width={width} height={height} className={className}>
+    <ChartProvider
+      data={data}
+      width={width}
+      height={height}
+      className={className}
+      title={title}
+      description={description}
+    >
       <Cartesian x={x} y={y} series={series} xType={xType}>
         {showGrid ? <Grid axis="y" /> : null}
         <YAxis label={yLabel} />
