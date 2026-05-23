@@ -44,7 +44,7 @@ export function XAxis(props: AxisProps) {
   const fmt = (tickFormat ?? defaultFormat) as (value: unknown) => string;
 
   return (
-    <g className="vz-axis gf-axis-x" transform={`translate(0, ${innerHeight})`}>
+    <g className="vz-axis vz-axis-x" transform={`translate(0, ${innerHeight})`}>
       {!hideLine ? <line x1={0} x2={innerWidth} y1={0} y2={0} /> : null}
       {ticks.map(({ value, offset }, i) => (
         <g key={`${String(value)}-${i}`} transform={`translate(${offset}, 0)`}>
@@ -76,7 +76,7 @@ export function YAxis(props: AxisProps) {
   const fmt = (tickFormat ?? defaultFormat) as (value: unknown) => string;
 
   return (
-    <g className="vz-axis gf-axis-y">
+    <g className="vz-axis vz-axis-y">
       {!hideLine ? <line x1={0} x2={0} y1={0} y2={innerHeight} /> : null}
       {ticks.map(({ value, offset }) => (
         <g key={String(value)} transform={`translate(0, ${offset})`}>

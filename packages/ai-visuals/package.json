@@ -28,9 +28,7 @@
     "react-dom": ">=18.2.0"
   },
   "dependencies": {
-    "@vizora/charts": "workspace:*",
     "@vizora/core": "workspace:*",
-    "@vizora/themes": "workspace:*",
     "@vizora/utils": "workspace:*"
   },
   "devDependencies": {

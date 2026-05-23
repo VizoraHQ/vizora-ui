@@ -28,6 +28,8 @@ export type TokenUsageChartProps = {
   showLegend?: boolean;
   showTooltip?: boolean;
   className?: string;
+  title?: string;
+  description?: string;
 };
 
 type Row = {
@@ -48,6 +50,8 @@ export function TokenUsageChart(props: TokenUsageChartProps) {
     showLegend = true,
     showTooltip = true,
     className,
+    title = unit === "cost" ? "Token cost by model over time" : "Token usage by model over time",
+    description,
   } = props;
 
   const rows = useMemo<Row[]>(() => {
@@ -66,7 +70,14 @@ export function TokenUsageChart(props: TokenUsageChartProps) {
   }, [data, unit]);
 
   return (
-    <ChartProvider data={rows} width={width} height={height} className={className}>
+    <ChartProvider
+      data={rows}
+      width={width}
+      height={height}
+      className={className}
+      title={title}
+      description={description}
+    >
       <Cartesian<Row>
         x={(d) => d.ts}
         y={(d) => d.value}

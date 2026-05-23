@@ -9,5 +9,12 @@ export const baseConfig: Options = {
   treeshake: true,
   splitting: false,
   target: "es2022",
-  external: ["react", "react-dom", "react/jsx-runtime"],
+  external: [
+    "react",
+    "react-dom",
+    "react/jsx-runtime",
+    "d3-array",
+    "d3-scale",
+    "d3-shape",
+  ],
 };

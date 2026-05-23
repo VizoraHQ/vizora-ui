@@ -1,5 +1,5 @@
 import { useId, useMemo } from "react";
-import { area as d3Area } from "d3-shape";
+import { area as d3Area, line as d3Line } from "d3-shape";
 import type { ScaleBand, ScaleLinear, ScaleTime } from "d3-scale";
 import { seriesColor } from "@vizora/utils";
 import { useCartesian, useChartFrame } from "../contexts";
@@ -35,7 +35,7 @@ export function AreaSeries(props: AreaSeriesProps) {
     return (d: unknown) => linear(Number(xAccessor(d)));
   }, [xScale, xAccessor, xKind]);
 
-  const generator = useMemo(
+  const areaGenerator = useMemo(
     () =>
       d3Area<unknown>()
         .x((d) => getX(d))
@@ -45,8 +45,17 @@ export function AreaSeries(props: AreaSeriesProps) {
     [getX, yScale, yAccessor, innerHeight, curve],
   );
 
+  const lineGenerator = useMemo(
+    () =>
+      d3Line<unknown>()
+        .x((d) => getX(d))
+        .y((d) => yScale(yAccessor(d)))
+        .curve(getCurve(curve)),
+    [getX, yScale, yAccessor, curve],
+  );
+
   return (
-    <g className="vz-series gf-area-series">
+    <g className="vz-series vz-area-series">
       <defs>
         {groups.map((group) => {
           const color = stroke ?? fill ?? seriesColor(group.index);
@@ -67,12 +76,13 @@ export function AreaSeries(props: AreaSeriesProps) {
       </defs>
       {groups.map((group) => {
         const color = stroke ?? seriesColor(group.index);
-        const path = generator(group.data) ?? "";
+        const areaPath = areaGenerator(group.data) ?? "";
+        const linePath = lineGenerator(group.data) ?? "";
         return (
           <g key={group.key} data-series-key={group.key}>
-            <path d={path} fill={fill ?? `url(#${gradientId}-${group.key})`} />
+            <path d={areaPath} fill={fill ?? `url(#${gradientId}-${group.key})`} />
             <path
-              d={path.replace(/L[^L]*$/, "")}
+              d={linePath}
               fill="none"
               stroke={color}
               strokeWidth={strokeWidth}
