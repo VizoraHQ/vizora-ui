@@ -218,7 +218,10 @@ function bucketKey(v: unknown, bucket: DateBucket): string {
 
 interface Bucket {
   sum: number;
+  /** Every row in the group — the denominator for the `count` op. */
   count: number;
+  /** Rows with a usable numeric measure — the denominator for `avg`. */
+  numCount: number;
   min: number;
   max: number;
   order: number;
@@ -240,13 +243,17 @@ export function aggregate(rows: DataRow[], agg: Aggregation): AggregatedResult {
     const key = agg.bucket ? bucketKey(raw, agg.bucket) : String(raw ?? "");
     let g = groups.get(key);
     if (!g) {
-      g = { sum: 0, count: 0, min: Infinity, max: -Infinity, order: order++ };
+      g = { sum: 0, count: 0, numCount: 0, min: Infinity, max: -Infinity, order: order++ };
       groups.set(key, g);
     }
     g.count += 1;
     if (agg.op !== "count") {
-      const n = toNumber(row[agg.measure]);
+      // Blank cells (null/undefined/"") are missing, not zero — `toNumber("")`
+      // would coerce to 0 and silently drag the average down.
+      const raw = row[agg.measure];
+      const n = raw == null || raw === "" ? null : toNumber(raw);
       if (n !== null) {
+        g.numCount += 1;
         g.sum += n;
         if (n < g.min) g.min = n;
         if (n > g.max) g.max = n;
@@ -259,7 +266,9 @@ export function aggregate(rows: DataRow[], agg: Aggregation): AggregatedResult {
       case "count":
         return g.count;
       case "avg":
-        return g.count ? g.sum / g.count : 0;
+        // Average only the rows that actually carried a numeric value, not
+        // blanks/non-numeric cells that still bumped the group's row count.
+        return g.numCount ? g.sum / g.numCount : 0;
       case "min":
         return g.min === Infinity ? 0 : g.min;
       case "max":
@@ -338,13 +347,27 @@ function paretoInsight(segments: ParetoSegment[]): string {
 /**
  * Rank an {@link aggregate} result by each group's share of the total
  * (descending) and derive a one-line "where it concentrates" insight.
- * Non-positive contributions are dropped — share-of-total is only meaningful
- * for the positive parts of the whole.
+ *
+ * Share-of-total is only meaningful when contributions share one sign, so:
+ *  - all non-negative → ranked directly (the common "spend by category" case);
+ *  - all non-positive (e.g. spend stored as negative ledger amounts) → ranked
+ *    by magnitude, so "where the money went" still works;
+ *  - mixed signs → not well-defined; returns no segments (caller hides the view)
+ *    rather than quoting a percentage of a total that excludes the negatives.
  */
 export function computePareto(result: AggregatedResult): Pareto {
-  const ranked = result.rows
-    .map((r) => ({ label: String(r[result.groupKey]), value: Number(r[result.valueKey]) || 0 }))
-    .filter((s) => s.value > 0)
+  const values = result.rows.map((r) => ({
+    label: String(r[result.groupKey]),
+    value: Number(r[result.valueKey]) || 0,
+  }));
+
+  const hasPositive = values.some((v) => v.value > 0);
+  const hasNegative = values.some((v) => v.value < 0);
+  if (hasPositive && hasNegative) return { segments: [], total: 0, insight: "" };
+
+  const ranked = values
+    .map((v) => ({ label: v.label, value: Math.abs(v.value) }))
+    .filter((v) => v.value > 0)
     .sort((a, b) => b.value - a.value);
 
   const total = ranked.reduce((acc, s) => acc + s.value, 0);
