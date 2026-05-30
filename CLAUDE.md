@@ -56,7 +56,7 @@ Tooling: **pnpm 9** workspaces, **Turbo** for task orchestration, **tsup** for l
 - ✅ `@vizora/charts` — `LineChart`, `BarChart`, `AreaChart`, **`PieChart` + `DonutChart` (v0.2)**, **`ScatterPlot` (v0.2)**, **`Heatmap` (v0.2)** — all accept `title`/`description`
 - ✅ `@vizora/dashboard-blocks` — `KpiCard`, `KpiGrid`, `Sparkline`
 - ✅ `@vizora/ai-visuals` — `TokenUsageChart` (signature AI component; sensible default `title`)
-- ✅ `apps/playground` — Vite app rebuilt as an "AI Ops dashboard" demo (KPI row + 6 chart panels + token usage), dark/light/midnight theme switcher, seeded sample data
+- ✅ `apps/playground` — Vite app with a left **nav rail** (added; there was no router before) switching two pages: **AI Ops dashboard** (KPI row + 6 chart panels + token usage, seeded data) and **Data Explorer** (`src/pages/DataExplorer.tsx` + `src/components/data-explorer/*`) — upload CSV/Excel (PapaParse + xlsx), auto-charted via `@vizora/charts` (Bar/Line/Area/Scatter), filter sidebar, and a Claude-powered chat assistant that emits filter/chart/reset actions (needs `VITE_ANTHROPIC_API_KEY`; browser-direct call, demo-only). dark/light/midnight theme switcher lives in the nav rail.
 - ✅ Root: README, LICENSE (MIT), `.changeset/config.json`, CI workflow (now incl. `pnpm test`), PR + issue templates, **CONTRIBUTING.md, CODEOWNERS, CODE_OF_CONDUCT.md, SECURITY.md** (post-audit)
 - ✅ `pnpm install && pnpm build && pnpm typecheck && pnpm lint && pnpm test` all pass (post-cleanup-sweep)
 
@@ -148,4 +148,4 @@ If this is a fresh session (or you just opened the folder):
 
 ---
 
-*Last refreshed: 2026-05-23 — v0.2 charts (Pie/Donut/Scatter/Heatmap) landing in `feat/v0.2-pie-scatter-heatmap`; Radar parked (needs full Polar context, future PR). Playground rebuilt as an AI Ops dashboard demo. Post-v0.1 cleanup sweep already in main. Repo at VizoraHQ/vizora-ui. CI green.*
+*Last refreshed: 2026-05-30 — Added a **Data Explorer** playground feature (upload → visualize → filter → AI chat) on branch `feat/data-explorer`; added a nav rail to the playground (no router lib). `papaparse` + `@types/papaparse` added to `apps/playground`. typecheck/build/lint pass. v0.2 charts (Pie/Donut/Scatter/Heatmap) already in main; Radar still parked. Repo at VizoraHQ/vizora-ui. CI green.*
