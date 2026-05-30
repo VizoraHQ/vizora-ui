@@ -17,11 +17,13 @@
     "@vizora/dashboard-blocks": "workspace:*",
     "@vizora/themes": "workspace:*",
     "@vizora/utils": "workspace:*",
+    "papaparse": "^5.4.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
+    "@types/papaparse": "^5.3.14",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "@vitejs/plugin-react": "^4.3.4",

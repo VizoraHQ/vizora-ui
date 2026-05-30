@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import { FileDropZone } from "./upload/FileDropZone";
 import { ColumnMapper } from "./upload/ColumnMapper";
 import type { Row } from "./upload/parseFile";
+import { DataExplorer } from "./pages/DataExplorer";
 import {
   AreaChart,
   BarChart,
@@ -28,16 +29,134 @@ import {
   tradeoff,
 } from "./data";
 
+type Page = "dashboard" | "explorer";
+
+const NAV: { id: Page; label: string; icon: string }[] = [
+  { id: "dashboard", label: "AI Ops", icon: "📈" },
+  { id: "explorer", label: "Data Explorer", icon: "🔎" },
+];
+
 export function App() {
   const [theme, setTheme] = useState<ThemeName>("dark");
-  const [showUploadModal, setShowUploadModal] = useState(false);
-  const [uploadedRows, setUploadedRows] = useState<Row[] | null>(null);
-  const [uploadedFileName, setUploadedFileName] = useState<string>("");
+  const [page, setPage] = useState<Page>("dashboard");
 
   const onTheme = (t: ThemeName): void => {
     setTheme(t);
     applyTheme(t);
   };
+
+  return (
+    <div style={{ display: "flex", height: "100vh", fontFamily: "var(--vz-font-sans)" }}>
+      <NavRail page={page} onNavigate={setPage} theme={theme} onTheme={onTheme} />
+      <main style={{ flex: 1, minWidth: 0, overflow: page === "explorer" ? "hidden" : "auto" }}>
+        {page === "explorer" ? <DataExplorer /> : <DashboardPage />}
+      </main>
+    </div>
+  );
+}
+
+function NavRail({
+  page,
+  onNavigate,
+  theme,
+  onTheme,
+}: {
+  page: Page;
+  onNavigate: (p: Page) => void;
+  theme: ThemeName;
+  onTheme: (t: ThemeName) => void;
+}) {
+  return (
+    <nav
+      aria-label="Primary"
+      style={{
+        width: 200,
+        flexShrink: 0,
+        borderRight: "1px solid var(--vz-border)",
+        background: "var(--vz-surface)",
+        display: "flex",
+        flexDirection: "column",
+        padding: 16,
+      }}
+    >
+      <div style={{ marginBottom: 24 }}>
+        <div style={{ fontSize: 16, fontWeight: 700, color: "var(--vz-fg)" }}>Vizora</div>
+        <div style={{ fontSize: 10, letterSpacing: 1, color: "var(--vz-muted)", textTransform: "uppercase" }}>
+          Playground
+        </div>
+      </div>
+
+      <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+        {NAV.map((item) => {
+          const active = page === item.id;
+          return (
+            <button
+              key={item.id}
+              onClick={() => onNavigate(item.id)}
+              aria-current={active ? "page" : undefined}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 10,
+                background: active ? "color-mix(in srgb, var(--vz-accent) 16%, transparent)" : "transparent",
+                color: active ? "var(--vz-fg)" : "var(--vz-muted)",
+                border: "none",
+                borderRadius: 8,
+                padding: "8px 10px",
+                fontSize: 13,
+                fontFamily: "inherit",
+                fontWeight: active ? 600 : 400,
+                cursor: "pointer",
+                textAlign: "left",
+              }}
+            >
+              <span aria-hidden>{item.icon}</span>
+              {item.label}
+            </button>
+          );
+        })}
+      </div>
+
+      <div style={{ marginTop: "auto" }}>
+        <div style={{ fontSize: 10, color: "var(--vz-muted)", textTransform: "uppercase", letterSpacing: 0.8, marginBottom: 6 }}>
+          Theme
+        </div>
+        <div role="tablist" aria-label="Theme" style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+          {(["dark", "light", "midnight"] as const).map((t) => {
+            const active = theme === t;
+            return (
+              <button
+                key={t}
+                role="tab"
+                aria-selected={active}
+                onClick={() => onTheme(t)}
+                style={{
+                  background: active ? "var(--vz-accent)" : "var(--vz-bg)",
+                  color: active ? "white" : "var(--vz-fg)",
+                  border: "1px solid var(--vz-border)",
+                  borderRadius: 8,
+                  padding: "6px 10px",
+                  fontSize: 12,
+                  fontFamily: "inherit",
+                  cursor: "pointer",
+                  textTransform: "capitalize",
+                  textAlign: "left",
+                }}
+              >
+                {t}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+    </nav>
+  );
+}
+
+function DashboardPage() {
+  const [showUploadModal, setShowUploadModal] = useState(false);
+  const [uploadedRows, setUploadedRows] = useState<Row[] | null>(null);
+  const [uploadedFileName, setUploadedFileName] = useState<string>("");
 
   // Pretty totals for the KPI strip — derived from sample data so they
   // stay coherent with the charts below.
@@ -57,7 +176,11 @@ export function App() {
       <ColumnMapper
         rows={uploadedRows}
         fileName={uploadedFileName}
-        onReset={() => { setUploadedRows(null); setUploadedFileName(""); setShowUploadModal(false); }}
+        onReset={() => {
+          setUploadedRows(null);
+          setUploadedFileName("");
+          setShowUploadModal(false);
+        }}
       />
     );
   }
@@ -68,7 +191,6 @@ export function App() {
         padding: "32px 40px 64px",
         maxWidth: 1440,
         margin: "0 auto",
-        fontFamily: "var(--vz-font-sans)",
       }}
     >
       <header
@@ -96,50 +218,22 @@ export function App() {
             and AI-native components.
           </p>
         </div>
-        <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
-          <button
-            onClick={() => setShowUploadModal(true)}
-            style={{
-              background: "var(--vz-accent)",
-              color: "white",
-              border: "none",
-              borderRadius: 8,
-              padding: "7px 14px",
-              fontSize: 12,
-              fontFamily: "inherit",
-              cursor: "pointer",
-              fontWeight: 600,
-            }}
-          >
-            Upload file
-          </button>
-        <div role="tablist" aria-label="Theme" style={{ display: "flex", gap: 6 }}>
-          {(["dark", "light", "midnight"] as const).map((t) => {
-            const active = theme === t;
-            return (
-              <button
-                key={t}
-                role="tab"
-                aria-selected={active}
-                onClick={() => onTheme(t)}
-                style={{
-                  background: active ? "var(--vz-accent)" : "var(--vz-surface)",
-                  color: active ? "white" : "var(--vz-fg)",
-                  border: "1px solid var(--vz-border)",
-                  borderRadius: 8,
-                  padding: "6px 12px",
-                  fontSize: 12,
-                  fontFamily: "inherit",
-                  cursor: "pointer",
-                  textTransform: "capitalize",
-                }}
-              >
-                {t}
-              </button>
-            );
-          })}
-        </div>
-        </div>
+        <button
+          onClick={() => setShowUploadModal(true)}
+          style={{
+            background: "var(--vz-accent)",
+            color: "white",
+            border: "none",
+            borderRadius: 8,
+            padding: "7px 14px",
+            fontSize: 12,
+            fontFamily: "inherit",
+            cursor: "pointer",
+            fontWeight: 600,
+          }}
+        >
+          Upload file
+        </button>
       </header>
 
       <Section>
