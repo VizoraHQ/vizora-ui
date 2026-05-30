@@ -1,5 +1,8 @@
 import { useMemo, useState } from "react";
 import type { ReactNode } from "react";
+import { FileDropZone } from "./upload/FileDropZone";
+import { ColumnMapper } from "./upload/ColumnMapper";
+import type { Row } from "./upload/parseFile";
 import {
   AreaChart,
   BarChart,
@@ -27,6 +30,10 @@ import {
 
 export function App() {
   const [theme, setTheme] = useState<ThemeName>("dark");
+  const [showUploadModal, setShowUploadModal] = useState(false);
+  const [uploadedRows, setUploadedRows] = useState<Row[] | null>(null);
+  const [uploadedFileName, setUploadedFileName] = useState<string>("");
+
   const onTheme = (t: ThemeName): void => {
     setTheme(t);
     applyTheme(t);
@@ -44,6 +51,16 @@ export function App() {
       tokensPerReq,
     };
   }, []);
+
+  if (uploadedRows) {
+    return (
+      <ColumnMapper
+        rows={uploadedRows}
+        fileName={uploadedFileName}
+        onReset={() => { setUploadedRows(null); setUploadedFileName(""); setShowUploadModal(false); }}
+      />
+    );
+  }
 
   return (
     <div
@@ -79,6 +96,23 @@ export function App() {
             and AI-native components.
           </p>
         </div>
+        <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+          <button
+            onClick={() => setShowUploadModal(true)}
+            style={{
+              background: "var(--vz-accent)",
+              color: "white",
+              border: "none",
+              borderRadius: 8,
+              padding: "7px 14px",
+              fontSize: 12,
+              fontFamily: "inherit",
+              cursor: "pointer",
+              fontWeight: 600,
+            }}
+          >
+            Upload file
+          </button>
         <div role="tablist" aria-label="Theme" style={{ display: "flex", gap: 6 }}>
           {(["dark", "light", "midnight"] as const).map((t) => {
             const active = theme === t;
@@ -104,6 +138,7 @@ export function App() {
               </button>
             );
           })}
+        </div>
         </div>
       </header>
 
@@ -256,6 +291,39 @@ export function App() {
       >
         Vizora playground · {new Date().getFullYear()} · MIT
       </footer>
+
+      {/* Upload modal */}
+      {showUploadModal && (
+        <div
+          style={{
+            position: "fixed", inset: 0,
+            background: "color-mix(in srgb, var(--vz-bg) 85%, transparent)",
+            backdropFilter: "blur(4px)",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            zIndex: 100,
+          }}
+          onClick={(e) => { if (e.target === e.currentTarget) setShowUploadModal(false); }}
+        >
+          <div className="vz-card" style={{ width: "100%", maxWidth: 560, padding: 8 }}>
+            <div style={{ display: "flex", justifyContent: "flex-end", padding: "8px 8px 0" }}>
+              <button
+                onClick={() => setShowUploadModal(false)}
+                aria-label="Close"
+                style={{ background: "none", border: "none", color: "var(--vz-muted)", fontSize: 18, cursor: "pointer" }}
+              >
+                ✕
+              </button>
+            </div>
+            <FileDropZone
+              onParsed={(rows, name) => {
+                setUploadedFileName(name);
+                setUploadedRows(rows);
+                setShowUploadModal(false);
+              }}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }
