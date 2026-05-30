@@ -6,6 +6,7 @@ import { ChartView } from "../components/data-explorer/ChartView";
 import { ChatPanel } from "../components/data-explorer/ChatPanel";
 import { applyFilters } from "../components/data-explorer/parse";
 import type {
+  Aggregation,
   ChartType,
   ChatMessage,
   Filter,
@@ -30,11 +31,13 @@ export function DataExplorer({ theme, onTheme }: DataExplorerProps) {
   const [data, setData] = useState<ParsedData | null>(null);
   const [filters, setFilters] = useState<Filter[]>([]);
   const [chartType, setChartType] = useState<ChartType>("bar");
+  const [aggregation, setAggregation] = useState<Aggregation | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
 
   function handleParsed(parsed: ParsedData) {
     setData(parsed);
     setFilters([]);
+    setAggregation(null);
     setMessages([]);
     setChartType(suggestChart(parsed));
   }
@@ -42,6 +45,19 @@ export function DataExplorer({ theme, onTheme }: DataExplorerProps) {
   const addFilter = (f: Filter) => setFilters((prev) => [...prev, f]);
   const removeFilter = (i: number) => setFilters((prev) => prev.filter((_, idx) => idx !== i));
   const resetFilters = () => setFilters([]);
+
+  // The AI sets an aggregation; pick the chart that reads best for the shape —
+  // a line for date buckets (a trend) and bars for category breakdowns.
+  const applyAggregation = (agg: Aggregation) => {
+    setAggregation(agg);
+    setChartType(agg.bucket ? "line" : "bar");
+  };
+
+  // "Reset" from the assistant clears both filters and aggregation.
+  const resetAll = () => {
+    setFilters([]);
+    setAggregation(null);
+  };
 
   const filteredRows = useMemo(
     () => (data ? applyFilters(data.rows, filters) : []),
@@ -107,6 +123,8 @@ export function DataExplorer({ theme, onTheme }: DataExplorerProps) {
                 filters={filters}
                 chartType={chartType}
                 onChartTypeChange={setChartType}
+                aggregation={aggregation}
+                onClearAggregation={() => setAggregation(null)}
               />
             </div>
             <DataPreview data={data} rows={filteredRows} />
@@ -119,11 +137,13 @@ export function DataExplorer({ theme, onTheme }: DataExplorerProps) {
         {data ? (
           <ChatPanel
             data={data}
+            rows={filteredRows}
             messages={messages}
             onMessagesChange={setMessages}
             onAddFilter={addFilter}
             onSetChartType={setChartType}
-            onResetFilters={resetFilters}
+            onResetFilters={resetAll}
+            onAggregate={applyAggregation}
           />
         ) : (
           <div
