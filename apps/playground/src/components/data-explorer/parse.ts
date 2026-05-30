@@ -38,9 +38,25 @@ export interface ChatMessage {
 
 const SUPPORTED_EXTENSIONS = ["csv", "xlsx", "xls"] as const;
 
+// Date-shaped strings (ISO `2026-01-15`, US `1/15/2026`, etc). Requiring a
+// separator avoids misreading bare numbers like years as dates.
+const DATE_LIKE = /^\d{4}-\d{1,2}-\d{1,2}|^\d{1,2}\/\d{1,2}\/\d{2,4}/;
+
+function looksLikeDate(v: unknown): boolean {
+  if (v instanceof Date) return true;
+  if (typeof v !== "string") return false;
+  return DATE_LIKE.test(v.trim()) && !Number.isNaN(Date.parse(v));
+}
+
+function isNumericValue(v: unknown): boolean {
+  if (typeof v === "number") return true;
+  return typeof v === "string" && v.trim() !== "" && !Number.isNaN(Number(v));
+}
+
 /**
  * Infer the semantic type of a column by sampling its values.
- * Dates win over numbers; numbers win over everything else.
+ * Dates win over numbers; numbers win over everything else. CSV date columns
+ * arrive as strings, so date detection is string-aware (not just `instanceof Date`).
  */
 export function inferColumnType(rows: DataRow[], col: string): ColumnType {
   const samples = rows
@@ -49,13 +65,8 @@ export function inferColumnType(rows: DataRow[], col: string): ColumnType {
     .filter((v) => v !== "" && v != null);
   if (samples.length === 0) return "categorical";
 
-  const dates = samples.filter((v) => v instanceof Date).length;
-  if (dates > samples.length / 2) return "date";
-
-  const numbers = samples.filter(
-    (v) => typeof v === "number" || (typeof v === "string" && v.trim() !== "" && !Number.isNaN(Number(v))),
-  ).length;
-  if (numbers > samples.length / 2) return "numeric";
+  if (samples.filter(looksLikeDate).length > samples.length / 2) return "date";
+  if (samples.filter(isNumericValue).length > samples.length / 2) return "numeric";
 
   return "categorical";
 }

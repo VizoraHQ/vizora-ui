@@ -42,19 +42,38 @@ export function ChartView({ data, filters, chartType, onChartTypeChange }: Props
 
   const rows = useMemo(() => applyFilters(data.rows, filters), [data.rows, filters]);
 
+  const xCategorical = data.types[xCol] === "categorical";
+  const xDate = data.types[xCol] === "date";
+
+  // Categorical columns have no position on a continuous (line/area) axis, so
+  // map each category to a stable index in encounter order — keeps the line
+  // continuous instead of producing NaN coordinates.
+  const categoryIndex = useMemo(() => {
+    if (!xCategorical) return null;
+    const m = new Map<string, number>();
+    let i = 0;
+    for (const r of rows) {
+      const k = String(r[xCol]);
+      if (!m.has(k)) m.set(k, i++);
+    }
+    return m;
+  }, [rows, xCol, xCategorical]);
+
   const coerce = (v: unknown): number =>
     typeof v === "number" ? v : v instanceof Date ? v.getTime() : Number(v) || 0;
   const xString = (d: DataRow): string => String(d[xCol]);
   const xNumeric = (d: DataRow): number => coerce(d[xCol]);
-  const xAny = (d: DataRow): Date | number | string => {
+  // Continuous X for line/area: Date for date columns, category index for
+  // categorical columns, plain number otherwise.
+  const xContinuous = (d: DataRow): Date | number => {
     const v = d[xCol];
-    if (v instanceof Date) return v;
-    const n = Number(v);
-    return v === "" || Number.isNaN(n) ? String(v) : n;
+    if (xDate) return v instanceof Date ? v : new Date(String(v));
+    if (categoryIndex) return categoryIndex.get(String(v)) ?? 0;
+    return coerce(v);
   };
   const yAccessor = (d: DataRow): number => coerce(d[yCol]);
 
-  const xType = data.types[xCol] === "date" ? "time" : "linear";
+  const xType = xDate ? "time" : "linear";
 
   const shared = {
     data: rows,
@@ -124,8 +143,12 @@ export function ChartView({ data, filters, chartType, onChartTypeChange }: Props
       ) : (
         <>
           {chartType === "bar" && <BarChart {...shared} x={xString} y={yAccessor} />}
-          {chartType === "line" && <LineChart {...shared} x={xAny} y={yAccessor} xType={xType} />}
-          {chartType === "area" && <AreaChart {...shared} x={xAny} y={yAccessor} xType={xType} />}
+          {chartType === "line" && (
+            <LineChart {...shared} x={xContinuous} y={yAccessor} xType={xType} xLabel={xCol} />
+          )}
+          {chartType === "area" && (
+            <AreaChart {...shared} x={xContinuous} y={yAccessor} xType={xType} xLabel={xCol} />
+          )}
           {chartType === "scatter" && (
             <ScatterPlot {...shared} x={xNumeric} y={yAccessor} xLabel={xCol} />
           )}

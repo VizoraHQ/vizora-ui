@@ -12,11 +12,11 @@ import type {
 } from "../components/data-explorer/parse";
 
 function suggestChart(data: ParsedData): ChartType {
-  const x = data.columns.find((c) => data.types[c] === "categorical");
+  const categorical = data.columns.find((c) => data.types[c] === "categorical");
   const firstNumeric = data.columns.find((c) => data.types[c] === "numeric");
   const firstDate = data.columns.find((c) => data.types[c] === "date");
+  if (categorical && firstNumeric) return "bar";
   if (firstDate && firstNumeric) return "line";
-  if (x && firstNumeric) return "bar";
   return "bar";
 }
 
