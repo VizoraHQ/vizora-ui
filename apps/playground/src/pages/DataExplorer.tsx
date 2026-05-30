@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import type { ThemeName } from "@vizora/themes";
 import { FileUpload } from "../components/data-explorer/FileUpload";
 import { FilterSidebar } from "../components/data-explorer/FilterSidebar";
 import { ChartView } from "../components/data-explorer/ChartView";
@@ -20,7 +21,12 @@ function suggestChart(data: ParsedData): ChartType {
   return "bar";
 }
 
-export function DataExplorer() {
+interface DataExplorerProps {
+  theme: ThemeName;
+  onTheme: (t: ThemeName) => void;
+}
+
+export function DataExplorer({ theme, onTheme }: DataExplorerProps) {
   const [data, setData] = useState<ParsedData | null>(null);
   const [filters, setFilters] = useState<Filter[]>([]);
   const [chartType, setChartType] = useState<ChartType>("bar");
@@ -63,13 +69,14 @@ export function DataExplorer() {
         }}
       >
         <div>
+          <div style={{ fontSize: 16, fontWeight: 700, color: "var(--vz-fg)" }}>Vizora</div>
           <div
             style={{
               fontSize: 11,
               letterSpacing: 1.4,
               color: "var(--vz-muted)",
               textTransform: "uppercase",
-              marginBottom: 8,
+              marginBottom: 12,
             }}
           >
             Data Explorer
@@ -85,6 +92,7 @@ export function DataExplorer() {
             onReset={resetFilters}
           />
         )}
+        <ThemeSwitch theme={theme} onTheme={onTheme} />
       </div>
 
       {/* Main area: chart + preview */}
@@ -135,6 +143,51 @@ export function DataExplorer() {
             Upload a dataset to chat with the AI analyst.
           </div>
         )}
+      </div>
+    </div>
+  );
+}
+
+function ThemeSwitch({ theme, onTheme }: DataExplorerProps) {
+  return (
+    <div style={{ marginTop: "auto" }}>
+      <div
+        style={{
+          fontSize: 10,
+          color: "var(--vz-muted)",
+          textTransform: "uppercase",
+          letterSpacing: 0.8,
+          marginBottom: 6,
+        }}
+      >
+        Theme
+      </div>
+      <div role="tablist" aria-label="Theme" style={{ display: "flex", gap: 4 }}>
+        {(["dark", "light", "midnight"] as const).map((t) => {
+          const active = theme === t;
+          return (
+            <button
+              key={t}
+              role="tab"
+              aria-selected={active}
+              onClick={() => onTheme(t)}
+              style={{
+                flex: 1,
+                background: active ? "var(--vz-accent)" : "var(--vz-bg)",
+                color: active ? "white" : "var(--vz-fg)",
+                border: "1px solid var(--vz-border)",
+                borderRadius: 8,
+                padding: "6px 4px",
+                fontSize: 11,
+                fontFamily: "inherit",
+                cursor: "pointer",
+                textTransform: "capitalize",
+              }}
+            >
+              {t}
+            </button>
+          );
+        })}
       </div>
     </div>
   );
