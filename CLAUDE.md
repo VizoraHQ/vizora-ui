@@ -141,6 +141,62 @@ If this is a fresh session (or you just opened the folder):
 - **v0.8** — Canvas/WebGL renderers, a11y certification, i18n
 - **v1.0** — API freeze, plugin spec, LTS policy
 
+## Launch / go-to-market plan (next up after v0.2 feature work)
+
+> Added 2026-05-30. The honest truth: the concept is strong and the timing is excellent (AI observability dashboards are hot), but **right now the repo is documentation without an installable product.** Order matters: **publish to npm → deploy the playground → then promote.** Don't skip ahead to promotion.
+
+### Phase 1 — Foundation (do this week) — *blockers before any promotion*
+- [ ] **Publish to npm (biggest blocker).** Nobody can `pnpm add @vizora/charts` today → it reads as vaporware. Publish even as `0.1.0-alpha`. Claim the `@vizora` scope first.
+- [ ] **Deploy a live demo.** The playground only runs locally. Ship it to Vercel/Netlify and link prominently in the README — a working demo converts browsers into stargazers.
+- [ ] **Stand up a docs site.** `apps/docs` is planned but empty. Even a basic Nextra/Docusaurus site beats nothing. (Fumadocs MDX was the original plan.)
+- [x] **README screenshot/GIF.** Done 2026-05-30 (`assets/data-explorer.png` donut hero). Consider an animated GIF of the Data Explorer flow too — text-only READMEs for UI libs get ignored.
+
+#### Phase 1 deep-dive: the npm publish task (scoped 2026-05-30)
+
+> Findings below are verified against the repo, not assumed. Current state: 6 publishable packages (`@vizora/{core,charts,ai-visuals,dashboard-blocks,themes,utils}`), all at `0.1.0`, none `private`; all build clean with correct `dist`/types/`exports` (tarballs ship only `package.json` + `dist/**` — no src leak). `@vizora/core` + `@vizora/charts` return **E404 on npm → not yet published**. npm is **not logged in locally**. Changesets config is already correct (`access:"public"`, `baseBranch:"main"`, ignores apps). One `release` script exists (`turbo run build && changeset publish`); **no release CI workflow yet**.
+
+**A. Account / scope prerequisites (do first, blocks everything)**
+- [ ] Log into npmjs.com and check **https://www.npmjs.com/org/vizora** — the per-package 404s do *not* prove the `@vizora` scope/org is free. If taken, fall back to **`@vizorahq`** (mirrors the GitHub org) — would require renaming all 6 packages + internal deps.
+- [ ] Create the **npm Organization `vizora`** (Free plan = unlimited public packages) to mirror GitHub `VizoraHQ` and prevent name-squatting. Do this even before the first publish.
+- [ ] Set up auth. **Important (npm changed this late-2025):** classic tokens were revoked (Dec 2025) and **granular access tokens can NOT publish** — so the old "NPM_TOKEN granular token" plan is dead for CI. Paths now: **manual** = `npm login` + 2FA (interactive OTP, fine locally); **CI (recommended)** = **OIDC Trusted Publishing** from GitHub Actions — no token at all, and it generates provenance for free (needs npm ≥11.5.1, Node ≥22.14.0, `id-token:write`, and a Trusted Publisher configured on npm pointing at `VizoraHQ/vizora-ui` + the workflow file). Token fallback only for non-GitHub CI = an **automation** token with "bypass 2FA" (90-day expiry, must rotate).
+
+**B. Package metadata must-fixes (before publish; ~mechanical)**
+- [ ] **Add `repository` (+ `"directory":"packages/<name>"`), `homepage`, `bugs` to all 6 package.json.** `repository` is also a hard requirement for npm provenance.
+- [ ] **Per-package `README.md`** (npm package pages are blank without one) and **per-package `LICENSE`** — current `files:["dist"]` excludes the root LICENSE from every tarball, so MIT text doesn't ship. Add `"LICENSE"`/`"README.md"` to `files` and place the files in each package dir.
+- [ ] Add `keywords` (react, charts, dataviz, d3, ai, llm, dashboard…) for npm search; optional `publishConfig:{access:"public",provenance:true}`.
+- [ ] **Fix `@vizora/charts` d3 peers:** it declares only `d3-shape` but transitively needs `d3-array`+`d3-scale` (via `@vizora/core`) — a consumer installing *only* `@vizora/charts` hits unmet peers. Add all three (match core). Also document that consumers must install the d3-* peers + react/react-dom.
+- [ ] **Publish only via `pnpm`/`changeset publish`, never raw `npm publish` per dir** — raw npm ships the literal `workspace:*` string and breaks every install.
+- [ ] Note: `workspace:*` internal deps get rewritten to an **exact pin** (`0.1.0`) on publish (per `.npmrc` rolling). Fine for alpha; consider `workspace:^` later for caret ranges.
+
+**C. Release mechanics (the publish itself)**
+- [ ] Decide alpha vs straight `0.1.0`. For a clean **`0.1.0-alpha.0`**: reset the 6 versions to `0.0.0`, then `pnpm changeset pre enter alpha` → `pnpm changeset` (minor, all pkgs) → `pnpm changeset version` → commit → `pnpm release`. (If you skip the reset, a patch/minor in pre-mode yields `0.1.1-alpha.0` / `0.2.0-alpha.0`, not `0.1.0-alpha.0`.)
+- [ ] Pre-mode auto-publishes under the **`alpha` dist-tag**, so `latest` stays empty until stable — exactly what we want. (Manual `npm publish` would need `--tag alpha` explicitly + correct order: **utils → core → charts/ai-visuals/dashboard-blocks**, themes standalone; `changeset publish` topo-sorts automatically.)
+- [ ] Exit later for stable: `pnpm changeset pre exit` → `version` → `release` (publishes `0.1.0` under `latest`).
+- [ ] **Recommended sequencing:** do the **first alpha publish manually** (`npm login` + interactive OTP — easier to debug auth/scope), then add a `release.yml` using `changesets/action@v1` with **OIDC Trusted Publishing** (`id-token:write`, no `NPM_TOKEN`) for stable `0.1.0`+. CI currently pins Node 20 — bump the *release* job to Node ≥22.14 for provenance.
+
+**D. Verify after publish**
+- [ ] `npm view @vizora/core dist-tags` (confirm `alpha`, no accidental `latest`); scratch-install in `/tmp` with peers (`react react-dom d3-shape`); check both ESM `import` + CJS `require` resolve; verify `@vizora/themes/dark.css` subpath resolves.
+
+**Risks to keep in mind:** versions are permanent (a published+unpublished version can never be reused); unpublish only works <72h and only if nothing depends on it — use `npm deprecate` for mistakes. Always `--dry-run` first.
+
+### Phase 2 — Content & distribution (weeks 2–4)
+Leverage existing dev.to audience (the Java modernization article). Articles to write:
+- [ ] **"Why I built a visualization library specifically for AI dashboards"** — origin story, most shareable. Cross-post dev.to + Hashnode + Medium simultaneously.
+- [ ] **"Visualizing LLM token costs in React — no D3 PhD required"** — practical `TokenUsageChart` tutorial; devs building AI apps actively search this.
+- [ ] **"Recharts vs Tremor vs Vizora — what's different"** — comparison posts rank on Google and get shared.
+
+Communities (share the **live demo**, not just the repo):
+- [ ] r/reactjs and r/webdev
+- [ ] **Show HN: "Vizora — AI-native React visualization framework"** — only once npm package + live demo are ready. Post Tue–Thu mornings ET.
+- [ ] Product Hunt — launch at v0.2 with more components.
+- [ ] Twitter/X — short demo clips; lean into the AI-native angle (TokenUsageChart, PromptCost, EvalScoreboard).
+
+### Phase 3 — Community & SEO (month 2+)
+- [ ] **GitHub Topics** — add `d3`, `data-visualization`, `dashboard`, `llm`, `ai` (on top of existing react/typescript) for organic GitHub search.
+- [ ] **`good first issue` labels** — tag 3–5 straightforward issues as contributor entry points.
+- [ ] **AI tooling community outreach** — Langfuse, LangSmith, OpenTelemetry Discords; `TokenUsageChart` natively targets their users → natural partnership angle.
+- [ ] **awesome-lists** — submit to `awesome-react`, `awesome-data-visualization` for passive star drip.
+
 ## How we collaborate
 
 - **Keep this file fresh.** Update the "Current state" snapshot whenever a meaningful checkpoint lands. Stale state is worse than no state.
@@ -150,4 +206,6 @@ If this is a fresh session (or you just opened the folder):
 
 ---
 
-*Last refreshed: 2026-05-30 — Playground is a **single upload-driven Data Explorer** (upload → visualize → filter → **aggregate** → AI chat) on branch `feat/data-explorer`. This session, in order: group-by **aggregation engine + Pareto contribution insight** wired to the AI `aggregate` action; `avg`/blank-cell + negative-measure correctness fixes post-review; a richer **hero empty state**; a **visually overhauled `PieChart`/`DonutChart`** in `@vizora/charts` + a **Pie tab** in the Explorer; and a **README hero screenshot** (`assets/data-explorer.png`) with a freshened Playground/Install/intro. Commits `0298235`, `1689ee6`, `028519e`, `15d86c1`, `5a4f31b`, `8926c6c` pushed. Open: a `@vizora/charts` Changeset for the pie work, plus the four low-severity review follow-ups noted above. typecheck/build pass; verified live in-browser across dark/light/midnight. Repo at VizoraHQ/vizora-ui. CI green.*
+*Last refreshed: 2026-05-30 — Playground is a **single upload-driven Data Explorer** (upload → visualize → filter → **aggregate** → AI chat) on branch `feat/data-explorer`. This session, in order: group-by **aggregation engine + Pareto contribution insight** wired to the AI `aggregate` action; `avg`/blank-cell + negative-measure correctness fixes post-review; a richer **hero empty state**; a **visually overhauled `PieChart`/`DonutChart`** in `@vizora/charts` + a **Pie tab** in the Explorer; and a **README hero screenshot** (`assets/data-explorer.png`) with a freshened Playground/Install/intro. Commits `0298235`, `1689ee6`, `028519e`, `15d86c1`, `5a4f31b`, `8926c6c` pushed. Open: a `@vizora/charts` Changeset for the pie work, plus the four low-severity review follow-ups noted above. typecheck/build pass; verified live in-browser across dark/light/midnight. Repo at VizoraHQ/vizora-ui. CI green. **Also recorded a 3-phase "Launch / go-to-market plan" (above) — next big push after v0.2 feature work; order is npm publish → deploy playground → promote.***
+
+> **▶ RESUME HERE (next session, planned 2026-05-31).** Last session added the **Launch / go-to-market plan** + a fully-scoped **"Phase 1 deep-dive: the npm publish task"** (both above; mirrored in memory `project_launch-plan.md` + `project_npm-publish-scope.md`). **No code was changed and nothing was committed/published** — pure planning. Pick up at the npm-publish checklist. **First two actions are decisions only you can make:** (1) confirm the `@vizora` npm org name is free via the logged-in org-create flow (fallback `@vizorahq`), and (2) alpha vs straight `0.1.0`. Then work the A→B→C→D checklist. Nothing is blocked; the repo is clean and CI is green.
