@@ -18,6 +18,12 @@ beautiful by default, headless underneath, and **AI-native from day one**.
 
 **[Install](#-install)** · **[Quickstart](#-30-second-example)** · **[Components](#-component-catalog)** · **[Playground](#-playground)** · **[Roadmap](#-roadmap)**
 
+<br/>
+
+<img src="./assets/data-explorer.png" alt="Vizora Data Explorer — drop in a CSV, auto-chart it, and ask a Claude-powered analyst where the money went" width="100%" />
+
+<sub>The **Data Explorer** playground — upload a spreadsheet, auto-chart it (here as a gradient donut), and ask the AI analyst to aggregate, filter, and explain it.</sub>
+
 </div>
 
 ---
@@ -135,10 +141,11 @@ applyTheme("midnight");
 
 ## 🧪 Playground
 
-The Vite playground is a living demo of the whole catalog:
+The Vite playground is a living, upload-driven demo of the catalog — the **Data Explorer**:
 
-- **AI Ops dashboard** — KPI strip + six chart panels + the signature token-usage chart, across three themes.
-- **Data Explorer** — drop in a CSV/Excel file, auto-chart it, filter it with chips, and ask a Claude-powered analyst to reshape the view.
+- **Drop in a CSV/Excel file** — columns are typed automatically and the data auto-charts as bar, line, area, scatter, or a gradient donut.
+- **Filter & aggregate** — narrow rows with chips, or group-by and summarize (sum/avg/count/min/max) with a Pareto "where it concentrates" insight.
+- **Ask a Claude-powered analyst** — reshape the view in plain English (*"where did the money go?"*), across dark/light/midnight themes.
 
 ```bash
 pnpm dev   # → http://localhost:5173
@@ -152,7 +159,7 @@ pnpm dev   # → http://localhost:5173
 vizora/
 ├── apps/
 │   ├── docs/            (planned) Next.js + MDX docs site
-│   └── playground/      Vite playground — AI Ops dashboard + Data Explorer
+│   └── playground/      Vite playground — the Data Explorer
 ├── packages/
 │   ├── core/            ChartProvider, Cartesian, axes, series, tooltip
 │   ├── charts/          Line, Bar, Area, Pie, Donut, Scatter, Heatmap
