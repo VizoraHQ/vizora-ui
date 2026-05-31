@@ -7,6 +7,9 @@
 A **React + TypeScript** visualization framework built for the dashboards modern products actually ship —
 beautiful by default, headless underneath, and **AI-native from day one**.
 
+Think *shadcn/ui for charts*: `pnpm add` the layers you need, theme everything with a single CSS variable,
+and drop in purpose-built **LLM / agent visualizations** you'd otherwise rebuild from scratch.
+
 <br/>
 
 [![status](https://img.shields.io/badge/status-v0.2_preview-8b5cf6?style=flat-square)](./ROADMAP.md)
@@ -17,6 +20,12 @@ beautiful by default, headless underneath, and **AI-native from day one**.
 [![PRs welcome](https://img.shields.io/badge/PRs-welcome-22c55e?style=flat-square)](./CONTRIBUTING.md)
 
 **[Install](#-install)** · **[Quickstart](#-30-second-example)** · **[Components](#-component-catalog)** · **[Playground](#-playground)** · **[Roadmap](#-roadmap)**
+
+<br/>
+
+<img src="./assets/data-explorer.png" alt="Vizora Data Explorer — drop in a CSV, auto-chart it, and ask a Claude-powered analyst where the money went" width="100%" />
+
+<sub>The **Data Explorer** playground — upload a spreadsheet, auto-chart it (here as a gradient donut), and ask the AI analyst to aggregate, filter, and explain it.</sub>
 
 </div>
 
@@ -40,13 +49,25 @@ Vizora ships the visualizations modern products actually need:
 
 ## 📦 Install
 
+Every package is independent and sits on the same kernel — add only the layers you need:
+
 ```bash
+# high-level charts + a theme — the usual starting point
 pnpm add @vizora/charts @vizora/themes
-# or grab the AI catalogue
+
+# AI-native visualizations: token usage, prompt cost, evals…
 pnpm add @vizora/ai-visuals
+
+# pre-composed dashboard sections: KPI grids, sparklines…
+pnpm add @vizora/dashboard-blocks
+
+# the headless kernel, for building custom charts from primitives
+pnpm add @vizora/core
 ```
 
-Import a theme once at the top of your app:
+> Works with `npm`, `pnpm`, or `yarn`. `d3` rides along as an auto-installed peer dependency, so every package shares a single copy.
+
+Import a theme once at the top of your app, then use any component:
 
 ```ts
 import "@vizora/themes/dark.css";
@@ -135,10 +156,11 @@ applyTheme("midnight");
 
 ## 🧪 Playground
 
-The Vite playground is a living demo of the whole catalog:
+The Vite playground is a living, upload-driven demo of the catalog — the **Data Explorer**:
 
-- **AI Ops dashboard** — KPI strip + six chart panels + the signature token-usage chart, across three themes.
-- **Data Explorer** — drop in a CSV/Excel file, auto-chart it, filter it with chips, and ask a Claude-powered analyst to reshape the view.
+- **Drop in a CSV/Excel file** — columns are typed automatically and the data auto-charts as bar, line, area, scatter, or a gradient donut.
+- **Filter & aggregate** — narrow rows with chips, or group-by and summarize (sum/avg/count/min/max) with a Pareto "where it concentrates" insight.
+- **Ask a Claude-powered analyst** — reshape the view in plain English (*"where did the money go?"*), across dark/light/midnight themes.
 
 ```bash
 pnpm dev   # → http://localhost:5173
@@ -152,7 +174,7 @@ pnpm dev   # → http://localhost:5173
 vizora/
 ├── apps/
 │   ├── docs/            (planned) Next.js + MDX docs site
-│   └── playground/      Vite playground — AI Ops dashboard + Data Explorer
+│   └── playground/      Vite playground — the Data Explorer
 ├── packages/
 │   ├── core/            ChartProvider, Cartesian, axes, series, tooltip
 │   ├── charts/          Line, Bar, Area, Pie, Donut, Scatter, Heatmap
