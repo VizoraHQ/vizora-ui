@@ -7,6 +7,9 @@
 A **React + TypeScript** visualization framework built for the dashboards modern products actually ship —
 beautiful by default, headless underneath, and **AI-native from day one**.
 
+Think *shadcn/ui for charts*: `pnpm add` the layers you need, theme everything with a single CSS variable,
+and drop in purpose-built **LLM / agent visualizations** you'd otherwise rebuild from scratch.
+
 <br/>
 
 [![status](https://img.shields.io/badge/status-v0.2_preview-8b5cf6?style=flat-square)](./ROADMAP.md)
@@ -46,13 +49,25 @@ Vizora ships the visualizations modern products actually need:
 
 ## 📦 Install
 
+Every package is independent and sits on the same kernel — add only the layers you need:
+
 ```bash
+# high-level charts + a theme — the usual starting point
 pnpm add @vizora/charts @vizora/themes
-# or grab the AI catalogue
+
+# AI-native visualizations: token usage, prompt cost, evals…
 pnpm add @vizora/ai-visuals
+
+# pre-composed dashboard sections: KPI grids, sparklines…
+pnpm add @vizora/dashboard-blocks
+
+# the headless kernel, for building custom charts from primitives
+pnpm add @vizora/core
 ```
 
-Import a theme once at the top of your app:
+> Works with `npm`, `pnpm`, or `yarn`. `d3` rides along as an auto-installed peer dependency, so every package shares a single copy.
+
+Import a theme once at the top of your app, then use any component:
 
 ```ts
 import "@vizora/themes/dark.css";
