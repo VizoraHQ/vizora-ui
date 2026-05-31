@@ -56,7 +56,8 @@ function buildSystemPrompt(data: ParsedData): string {
     '{"action":"filter","column":"Revenue","operator":">","value":5000}',
     "  • operators: >, <, =, >=, <=, contains, startsWith",
     "",
-    'CHART — change the chart type: {"action":"chart","type":"bar"}  (bar, line, area, scatter)',
+    'CHART — change the chart type: {"action":"chart","type":"bar"}  (bar, line, area, scatter, pie)',
+    "  • pie reads best for a part-of-whole share of a single category breakdown.",
     "",
     'RESET — clear all filters and aggregation: {"action":"reset"}',
     "",
@@ -64,7 +65,7 @@ function buildSystemPrompt(data: ParsedData): string {
   ].join("\n");
 }
 
-const CHART_TYPES: ChartType[] = ["bar", "line", "area", "scatter"];
+const CHART_TYPES: ChartType[] = ["bar", "line", "area", "scatter", "pie"];
 
 interface AIAction {
   action?: string;

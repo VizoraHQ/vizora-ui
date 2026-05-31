@@ -16,7 +16,7 @@ export interface ParsedData {
 }
 
 /** Chart types the Data Explorer can render. */
-export type ChartType = "bar" | "line" | "area" | "scatter";
+export type ChartType = "bar" | "line" | "area" | "scatter" | "pie";
 
 /** Comparison operators the filter engine (and the AI assistant) understands. */
 export type Operator = ">" | "<" | "=" | ">=" | "<=" | "contains" | "startsWith";

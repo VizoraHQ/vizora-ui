@@ -101,6 +101,14 @@ export function PieChart<T>(props: PieChartProps<T>) {
   const palette = (i: number): string =>
     colors && colors.length > 0 ? (colors[i % colors.length] ?? seriesColor(i)) : seriesColor(i);
 
+  // Push the hovered slice outward along its own bisector for a "pop" effect.
+  const popOffset = (slice: { startAngle: number; endAngle: number }): [number, number] => {
+    const [cx, cy] = arcGen.centroid(slice);
+    const len = Math.hypot(cx, cy) || 1;
+    const k = Math.max(6, radius * 0.05) / len;
+    return [cx * k, cy * k];
+  };
+
   return (
     <div
       className={className}
@@ -116,20 +124,49 @@ export function PieChart<T>(props: PieChartProps<T>) {
       >
         {title ? <title id={titleId}>{title}</title> : null}
         {description ? <desc id={descId}>{description}</desc> : null}
+        <style>{`
+          @keyframes vzPieIn{from{opacity:0;transform:scale(.9) rotate(-7deg)}to{opacity:1;transform:none}}
+          .vz-pie-series{animation:vzPieIn var(--vz-duration-slow,520ms) var(--vz-ease,cubic-bezier(.16,1,.3,1)) both;transform-origin:0 0}
+          .vz-pie-slice{transition:transform var(--vz-duration-base,220ms) var(--vz-ease,ease),opacity var(--vz-duration-fast,120ms) ease,filter var(--vz-duration-base,220ms) ease}
+        `}</style>
+        <defs>
+          {slices.map((_, i) => {
+            const color = palette(i);
+            return (
+              <linearGradient key={i} id={`${a11yId}-g${i}`} x1="0" y1="0" x2="0.35" y2="1">
+                <stop offset="0%" stopColor={`color-mix(in srgb, ${color} 84%, white)`} />
+                <stop offset="55%" stopColor={color} />
+                <stop offset="100%" stopColor={`color-mix(in srgb, ${color} 86%, black)`} />
+              </linearGradient>
+            );
+          })}
+        </defs>
         <g className="vz-series vz-pie-series">
           {slices.map((slice, i) => {
             const path = arcGen(slice) ?? "";
             const color = palette(i);
-            const dim = hoverIdx != null && hoverIdx !== i;
+            const active = hoverIdx === i;
+            const dim = hoverIdx != null && !active;
+            const [ox, oy] = active ? popOffset(slice) : [0, 0];
             return (
               <path
                 key={i}
+                className="vz-pie-slice"
                 d={path}
-                fill={color}
-                opacity={dim ? 0.35 : 1}
+                fill={`url(#${a11yId}-g${i})`}
+                stroke="var(--vz-bg)"
+                strokeWidth={1.25}
+                strokeLinejoin="round"
+                opacity={dim ? 0.4 : 1}
+                transform={`translate(${ox} ${oy})`}
                 onMouseEnter={() => setHoverIdx(i)}
                 onMouseLeave={() => setHoverIdx(null)}
-                style={{ transition: "opacity var(--vz-duration-fast, 120ms) var(--vz-ease, ease)" }}
+                style={{
+                  cursor: "default",
+                  filter: active
+                    ? `drop-shadow(0 6px 16px color-mix(in srgb, ${color} 55%, transparent))`
+                    : "none",
+                }}
               />
             );
           })}
@@ -137,7 +174,7 @@ export function PieChart<T>(props: PieChartProps<T>) {
             ? slices.map((slice, i) => {
                 const [lx, ly] = labelArc.centroid(slice);
                 const pct = total > 0 ? (slice.value / total) * 100 : 0;
-                if (pct < 4) return null;
+                if (pct < 5) return null;
                 return (
                   <text
                     key={`l-${i}`}
@@ -146,10 +183,14 @@ export function PieChart<T>(props: PieChartProps<T>) {
                     textAnchor="middle"
                     dy="0.32em"
                     style={{
-                      fontSize: 11,
-                      fill: "var(--vz-fg, currentColor)",
-                      fontWeight: 600,
+                      fontSize: 12,
+                      fill: "#fff",
+                      fontWeight: 700,
                       pointerEvents: "none",
+                      paintOrder: "stroke",
+                      stroke: "color-mix(in srgb, #000 35%, transparent)",
+                      strokeWidth: 3,
+                      strokeLinejoin: "round",
                     }}
                   >
                     {pct.toFixed(0)}%
@@ -157,21 +198,26 @@ export function PieChart<T>(props: PieChartProps<T>) {
                 );
               })
             : null}
-          {inner > 0 && hoverIdx != null && slices[hoverIdx] ? (
+          {inner > 0 ? (
             <g style={{ pointerEvents: "none" }}>
               <text
                 textAnchor="middle"
-                dy="-0.2em"
-                style={{ fontSize: 11, fill: "var(--vz-muted)" }}
+                dy="-0.35em"
+                style={{
+                  fontSize: 10.5,
+                  fill: "var(--vz-muted)",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.06em",
+                }}
               >
-                {label(slices[hoverIdx].data)}
+                {hoverIdx != null && slices[hoverIdx] ? label(slices[hoverIdx]!.data) : "Total"}
               </text>
               <text
                 textAnchor="middle"
-                dy="1em"
-                style={{ fontSize: 18, fontWeight: 600, fill: "var(--vz-fg, currentColor)" }}
+                dy="0.9em"
+                style={{ fontSize: 22, fontWeight: 700, fill: "var(--vz-fg, currentColor)" }}
               >
-                {valueFormat(slices[hoverIdx].value)}
+                {valueFormat(hoverIdx != null && slices[hoverIdx] ? slices[hoverIdx]!.value : total)}
               </text>
             </g>
           ) : null}

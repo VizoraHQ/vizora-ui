@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { AreaChart, BarChart, LineChart, ScatterPlot } from "@vizora/charts";
+import { AreaChart, BarChart, DonutChart, LineChart, ScatterPlot } from "@vizora/charts";
 import { aggregate, applyFilters, computePareto, supportsPareto } from "./parse";
 import type { Aggregation, ChartType, DataRow, Filter, ParsedData, Pareto } from "./parse";
 
@@ -17,7 +17,16 @@ const CHART_TABS: { value: ChartType; label: string }[] = [
   { value: "line", label: "Line" },
   { value: "area", label: "Area" },
   { value: "scatter", label: "Scatter" },
+  { value: "pie", label: "Pie" },
 ];
+
+/** Max distinct slices before the long tail is rolled into a single "Other". */
+const PIE_MAX_SLICES = 8;
+
+interface Slice {
+  label: string;
+  value: number;
+}
 
 function firstOfType(data: ParsedData, type: "numeric" | "categorical" | "date"): string | undefined {
   return data.columns.find((c) => data.types[c] === type);
@@ -113,6 +122,25 @@ export function ChartView({
 
   const xType = xDate ? "time" : "linear";
 
+  // Pie needs one value per category, so collapse rows by X (summing |Y|) and
+  // roll the long tail into a single "Other" slice. For already-aggregated data
+  // this is a no-op regroup; for raw rows it sums duplicates per category.
+  const pieSlices = useMemo<Slice[]>(() => {
+    const totals = new Map<string, number>();
+    for (const r of rows) {
+      const k = String(r[activeX]);
+      totals.set(k, (totals.get(k) ?? 0) + Math.abs(coerce(r[activeY])));
+    }
+    const sorted = [...totals.entries()]
+      .map(([label, value]) => ({ label, value }))
+      .filter((s) => s.value > 0)
+      .sort((a, b) => b.value - a.value);
+    if (sorted.length <= PIE_MAX_SLICES) return sorted;
+    const head = sorted.slice(0, PIE_MAX_SLICES - 1);
+    const other = sorted.slice(PIE_MAX_SLICES - 1).reduce((acc, s) => acc + s.value, 0);
+    return [...head, { label: "Other", value: other }];
+  }, [rows, activeX, activeY]);
+
   const shared = {
     data: rows,
     height: 360,
@@ -201,6 +229,34 @@ export function ChartView({
           {chartType === "scatter" && (
             <ScatterPlot {...shared} x={xNumeric} y={yAccessor} xLabel={xCol} />
           )}
+          {chartType === "pie" &&
+            (pieSlices.length === 0 ? (
+              <div
+                style={{
+                  height: 360,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  color: "var(--vz-muted)",
+                  fontSize: 13,
+                }}
+              >
+                No positive values to chart as a pie.
+              </div>
+            ) : (
+              <div style={{ display: "flex", justifyContent: "center", padding: "8px 0 4px" }}>
+                <DonutChart
+                  data={pieSlices}
+                  value={(d) => d.value}
+                  label={(d) => d.label}
+                  width={440}
+                  height={360}
+                  showLabels
+                  title={shared.title}
+                  description={shared.description}
+                />
+              </div>
+            ))}
         </>
       )}
     </div>
